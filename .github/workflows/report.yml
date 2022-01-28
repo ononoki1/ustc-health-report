@@ -3,6 +3,9 @@ name: Auto Report
 on: 
   schedule:
     - cron: '10 4,10,16,22 * * *'
+  push:
+    branches:
+      - master
 
 jobs:
   build:

@@ -14,8 +14,8 @@ from urllib3.util.retry import Retry
 
 CAS_RETURN_URL = "https://weixine.ustc.edu.cn/2020/caslogin"
 class Report(object):
-    def __init__(self, stuid, password, data_path, emer_person, relation, emer_phone):
-        self.stuid = stuid
+    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone):
+        self.student_id = student_id
         self.password = password
         self.data_path = data_path
         self.emer_person = emer_person
@@ -23,19 +23,19 @@ class Report(object):
         self.emer_phone = emer_phone
 
     def report(self):
-        loginsuccess = False
-        retrycount = 5
-        while (not loginsuccess) and retrycount:
+        login_success = False
+        retry_count = 5
+        while (not login_success) and retry_count:
             session = self.login()
             cookies = session.cookies
-            getform = session.get("https://weixine.ustc.edu.cn/2020")
-            retrycount = retrycount - 1
-            if getform.url != "https://weixine.ustc.edu.cn/2020/home":
+            get_form = session.get("https://weixine.ustc.edu.cn/2020")
+            retry_count = retry_count - 1
+            if get_form.url != "https://weixine.ustc.edu.cn/2020/home":
                 print("Login Failed! Retrying...")
             else:
                 print("Login Successful!")
-                loginsuccess = True
-        if not loginsuccess:
+                login_success = True
+        if not login_success:
             return False
         ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy", allow_redirects=False)
         if ret.status_code == 200:
@@ -60,7 +60,7 @@ class Report(object):
         else:
             print("error! code " + ret.status_code)
 
-        data = getform.text
+        data = get_form.text
         data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
         soup = BeautifulSoup(data, 'html.parser')
         token = soup.find("input", {"name": "_token"})['value']
@@ -96,26 +96,26 @@ class Report(object):
             date = pattern.search(token.text).group()
             print("Latest report: " + date)
             date = date + " +0800"
-            reporttime = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S %z")
-            print("Reporttime : " + format(reporttime))
-            timenow = datetime.datetime.now(pytz.timezone('Asia/Shanghai'))
-            print("Nowtime : " + format(timenow))
-            delta = timenow - reporttime
-            delta_nega = reporttime - timenow
-            print("Delta is ")
+            report_time = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S %z")
+            print("Report: " + format(report_time))
+            time_now = datetime.datetime.now(pytz.timezone('Asia/Shanghai'))
+            print("Now: " + format(time_now))
+            delta = time_now - report_time
+            delta_negative = report_time - time_now
+            print("Delta: ")
             print(delta)
-            print("Delta_Negative is ")
-            print(delta_nega)
-            if delta.seconds < 120 or delta_nega.seconds < 120:
+            print("Delta negative: ")
+            print(delta_negative)
+            if delta.seconds < 120 or delta_negative.seconds < 120:
                 flag = True
-            if delta.seconds < delta_nega.seconds:
+            if delta.seconds < delta_negative.seconds:
                 print("{} second(s) before.".format(delta.seconds))
             else:
-                print("{} second(s) before.".format(delta_nega.seconds))
+                print("{} second(s) before.".format(delta_negative.seconds))
         if flag is False:
             print("Report FAILED!")
         else:
-            print("Report SUCCESSFUL!")
+            print("Report SUCCEEDED!")
         return flag
 
     def login(self):
@@ -143,9 +143,9 @@ class Report(object):
                     pix[i, j] = (255, 255, 255)
         lt_code = pytesseract.image_to_string(img).strip()
 
-        data = {'model': 'uplogin.jsp', 'service': 'https://weixine.ustc.edu.cn/2020/caslogin', 'username': self.stuid,
-                'password': str(self.password), 'warn': '', 'showCode': '1', 'button': '', 'CAS_LT': cas_lt,
-                'LT': lt_code}
+        data = {'model': 'uplogin.jsp', 'service': 'https://weixine.ustc.edu.cn/2020/caslogin',
+                'username': self.student_id, 'password': str(self.password), 'warn': '', 'showCode': '1', 'button': '',
+                'CAS_LT': cas_lt, 'LT': lt_code}
         s.post(url, data=data)
 
         print("lt-code is {}, login...".format(lt_code))
@@ -161,11 +161,11 @@ if __name__ == "__main__":
     parser.add_argument('relation', help='relationship between you and he/she', type=str)
     parser.add_argument('emer_phone', help='phone number', type=str)
     args = parser.parse_args()
-    autorepoter = Report(stuid=args.stuid, password=args.password, data_path=args.data_path,
-                         emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone)
+    autoreporter = Report(student_id=args.stuid, password=args.password, data_path=args.data_path,
+                          emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone)
     COUNT = 5
     while COUNT != 0:
-        RET = autorepoter.report()
+        RET = autoreporter.report()
         if RET is not False:
             break
         print("Report Failed, retry...")

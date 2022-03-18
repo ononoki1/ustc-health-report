@@ -1,17 +1,13 @@
 name: Auto Report
-
 on: 
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '18 5,11,17,23 * * *'
   push:
     branches:
       - master
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8

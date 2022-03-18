@@ -39,7 +39,7 @@ class Report(object):
             return False
         ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
         if ret.status_code == 200:
-            print("开始例行报备.")
+            print("开始报备.")
             data = ret.text
             data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
             soup = BeautifulSoup(data, 'html.parser')
@@ -47,8 +47,7 @@ class Report(object):
             start_date = soup.find("input", {"id": "start_date"})['value']
             end_date = soup.find("input", {"id": "end_date"})['value']
 
-            print("{}---{}".format(start_date, end_date))
-
+            print("{} - {}".format(start_date, end_date))
             report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
             report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date}
 
@@ -56,9 +55,9 @@ class Report(object):
             print(ret.status_code)
 
         elif ret.status_code == 302:
-            print("你这周已经报备过了.")
+            print("已经报备过了.")
         else:
-            print("error! code " + ret.status_code)
+            print("Error! Return code " + ret.status_code)
 
         data = get_form.text
         data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
@@ -113,9 +112,9 @@ class Report(object):
             else:
                 print("{} second(s) before.".format(delta_negative.seconds))
         if flag is False:
-            print("Report FAILED!")
+            print("Report failed!")
         else:
-            print("Report SUCCEEDED!")
+            print("Report succeeded!")
         return flag
 
     def login(self):

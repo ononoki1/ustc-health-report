@@ -37,7 +37,7 @@ class Report(object):
                 login_success = True
         if not login_success:
             return False
-        ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy", allow_redirects=False)
+        ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
         if ret.status_code == 200:
             print("开始例行报备.")
             data = ret.text

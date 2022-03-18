@@ -26,37 +26,16 @@ class Report(object):
 
     def report(self):
         login_success = False
-        retry_count = 5
-        while (not login_success) and retry_count:
-            session = self.login()
-            cookies = session.cookies
-            get_form = session.get("https://weixine.ustc.edu.cn/2020")
-            retry_count = retry_count - 1
-            if get_form.url != "https://weixine.ustc.edu.cn/2020/home":
-                print("Login Failed! Retrying...")
-            else:
-                print("Login Successful!")
-                login_success = True
+        session = self.login()
+        cookies = session.cookies
+        get_form = session.get("https://weixine.ustc.edu.cn/2020")
+        if get_form.url != "https://weixine.ustc.edu.cn/2020/home":
+            print("Login failed!")
+        else:
+            print("Login succeeded!")
+            login_success = True
         if not login_success:
             return False
-        ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
-        if ret.status_code == 200:
-            print("Start cross-compass report.")
-            data = ret.text
-            data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
-            soup = BeautifulSoup(data, 'html.parser')
-            token2 = soup.find("input", {"name": "_token"})['value']
-            start_date = soup.find("input", {"id": "start_date"})['value']
-            end_date = soup.find("input", {"id": "end_date"})['value']
-            print("{} - {}".format(start_date, end_date))
-            report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
-            report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date}
-            ret = session.post(url=report_url, data=report_data)
-            print(ret.status_code)
-        elif ret.status_code == 302:
-            print("Cross-compass report already finished.")
-        else:
-            print("Error! Return code " + ret.status_code)
         data = get_form.text
         data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
         soup = BeautifulSoup(data, 'html.parser')
@@ -108,6 +87,24 @@ class Report(object):
             print("Report failed!")
         else:
             print("Report succeeded!")
+        ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
+        if ret.status_code == 200:
+            print("Start cross-campus report.")
+            data = ret.text
+            data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
+            soup = BeautifulSoup(data, 'html.parser')
+            token2 = soup.find("input", {"name": "_token"})['value']
+            start_date = soup.find("input", {"id": "start_date"})['value']
+            end_date = soup.find("input", {"id": "end_date"})['value']
+            print("{} - {}".format(start_date, end_date))
+            report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
+            report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date}
+            ret = session.post(url=report_url, data=report_data)
+            print(ret.status_code)
+        elif ret.status_code == 302:
+            print("Cross-campus report already finished.")
+        else:
+            print("Error! Return code " + str(ret.status_code))
         return flag
 
     def login(self):
@@ -137,7 +134,6 @@ class Report(object):
                 'username': self.student_id, 'password': str(self.password), 'warn': '', 'showCode': '1', 'button': '',
                 'CAS_LT': cas_lt, 'LT': lt_code}
         s.post(url, data=data)
-        print("lt-code is {}, login...".format(lt_code))
         return s
 
 

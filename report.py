@@ -13,6 +13,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 CAS_RETURN_URL = "https://weixine.ustc.edu.cn/2020/caslogin"
+
+
 class Report(object):
     def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone):
         self.student_id = student_id
@@ -39,31 +41,26 @@ class Report(object):
             return False
         ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
         if ret.status_code == 200:
-            print("开始报备.")
+            print("Start cross-compass report.")
             data = ret.text
             data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
             soup = BeautifulSoup(data, 'html.parser')
             token2 = soup.find("input", {"name": "_token"})['value']
             start_date = soup.find("input", {"id": "start_date"})['value']
             end_date = soup.find("input", {"id": "end_date"})['value']
-
             print("{} - {}".format(start_date, end_date))
             report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
             report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date}
-
             ret = session.post(url=report_url, data=report_data)
             print(ret.status_code)
-
         elif ret.status_code == 302:
-            print("已经报备过了.")
+            print("Cross-compass report already finished.")
         else:
             print("Error! Return code " + ret.status_code)
-
         data = get_form.text
         data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
         soup = BeautifulSoup(data, 'html.parser')
         token = soup.find("input", {"name": "_token"})['value']
-
         with open(self.data_path, "r+") as f:
             data = f.read()
             data = json.loads(data)
@@ -71,7 +68,6 @@ class Report(object):
             data["jinji_guanxi"] = self.relation
             data["jiji_mobile"] = self.emer_phone
             data["_token"] = token
-
         headers = {'authority': 'weixine.ustc.edu.cn', 'origin': 'https://weixine.ustc.edu.cn',
                    'upgrade-insecure-requests': '1', 'content-type': 'application/x-www-form-urlencoded',
                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -82,7 +78,6 @@ class Report(object):
                    'Connection': 'close',
                    'cookie': "PHPSESSID=" + cookies.get("PHPSESSID") + ";XSRF-TOKEN=" + cookies.get(
                        "XSRF-TOKEN") + ";laravel_session=" + cookies.get("laravel_session"), }
-
         url = "https://weixine.ustc.edu.cn/2020/daliy_report"
         resp = session.post(url, data=data, headers=headers)
         print(resp)
@@ -101,10 +96,8 @@ class Report(object):
             print("Now: " + format(time_now))
             delta = time_now - report_time
             delta_negative = report_time - time_now
-            print("Delta: ")
-            print(delta)
-            print("Delta negative: ")
-            print(delta_negative)
+            print("Delta: " + str(delta))
+            print("Delta negative: " + str(delta_negative))
             if delta.seconds < 120 or delta_negative.seconds < 120:
                 flag = True
             if delta.seconds < delta_negative.seconds:
@@ -128,7 +121,6 @@ class Report(object):
         r = s.get(url, params={"service": CAS_RETURN_URL})
         x = re.search(r"""<input.*?name="CAS_LT".*?>""", r.text).group(0)
         cas_lt = re.search(r'value="(LT-\w*)"', x).group(1)
-
         cas_captcha_url = "https://passport.ustc.edu.cn/validatecode.jsp?type=login"
         r = s.get(cas_captcha_url)
         img = PIL.Image.open(io.BytesIO(r.content))
@@ -141,35 +133,22 @@ class Report(object):
                 else:
                     pix[i, j] = (255, 255, 255)
         lt_code = pytesseract.image_to_string(img).strip()
-
         data = {'model': 'uplogin.jsp', 'service': 'https://weixine.ustc.edu.cn/2020/caslogin',
                 'username': self.student_id, 'password': str(self.password), 'warn': '', 'showCode': '1', 'button': '',
                 'CAS_LT': cas_lt, 'LT': lt_code}
         s.post(url, data=data)
-
         print("lt-code is {}, login...".format(lt_code))
         return s
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='URC nCov auto report script.')
-    parser.add_argument('data_path', help='path to your own data used for post method', type=str)
-    parser.add_argument('stuid', help='your student number', type=str)
-    parser.add_argument('password', help='your CAS password', type=str)
-    parser.add_argument('emer_person', help='emergency person', type=str)
-    parser.add_argument('relation', help='relationship between you and he/she', type=str)
-    parser.add_argument('emer_phone', help='phone number', type=str)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_path', type=str)
+    parser.add_argument('stuid', type=str)
+    parser.add_argument('password', type=str)
+    parser.add_argument('emer_person', type=str)
+    parser.add_argument('relation', type=str)
+    parser.add_argument('emer_phone', type=str)
     args = parser.parse_args()
-    autoreporter = Report(student_id=args.stuid, password=args.password, data_path=args.data_path,
-                          emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone)
-    COUNT = 5
-    while COUNT != 0:
-        RET = autoreporter.report()
-        if RET is not False:
-            break
-        print("Report Failed, retry...")
-        COUNT = COUNT - 1
-    if COUNT != 0:
-        exit(0)
-    else:
-        exit(-1)
+    Report(student_id=args.stuid, password=args.password, data_path=args.data_path,
+           emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone).report()

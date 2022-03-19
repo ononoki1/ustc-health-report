@@ -12,8 +12,6 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-CAS_RETURN_URL = "https://weixine.ustc.edu.cn/2020/caslogin"
-
 
 class Report(object):
     def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone):
@@ -30,12 +28,13 @@ class Report(object):
         cookies = session.cookies
         get_form = session.get("https://weixine.ustc.edu.cn/2020")
         if get_form.url != "https://weixine.ustc.edu.cn/2020/home":
-            print("Login failed!")
+            print("Login failed.")
         else:
-            print("Login succeeded!")
+            print("Login succeeded.")
             login_success = True
         if not login_success:
             return False
+        print('Start daily report.')
         data = get_form.text
         data = data.encode('ascii', 'ignore').decode('utf-8', 'ignore')
         soup = BeautifulSoup(data, 'html.parser')
@@ -58,8 +57,7 @@ class Report(object):
                    'cookie': "PHPSESSID=" + cookies.get("PHPSESSID") + ";XSRF-TOKEN=" + cookies.get(
                        "XSRF-TOKEN") + ";laravel_session=" + cookies.get("laravel_session"), }
         url = "https://weixine.ustc.edu.cn/2020/daliy_report"
-        resp = session.post(url, data=data, headers=headers)
-        print(resp)
+        session.post(url, data=data, headers=headers)
         data = session.get("https://weixine.ustc.edu.cn/2020").text
         soup = BeautifulSoup(data, 'html.parser')
         pattern = re.compile("202[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
@@ -84,9 +82,9 @@ class Report(object):
             else:
                 print("{} second(s) before.".format(delta_negative.seconds))
         if flag is False:
-            print("Report failed!")
+            print("Daily report failed.")
         else:
-            print("Report succeeded!")
+            print("Daily report succeeded.")
         ret = session.get("https://weixine.ustc.edu.cn/2020/apply/daliy/i")
         if ret.status_code == 200:
             print("Start cross-campus report.")
@@ -101,23 +99,22 @@ class Report(object):
             report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date,
                            "return_college[]": ["东校区", "西校区", "南校区", "北校区", "中校区", "高新校区", "先研院", "国金院"]}
             ret = session.post(url=report_url, data=report_data)
-            print(ret.status_code)
-        elif ret.status_code == 302:
-            print("Cross-campus report already finished.")
-        else:
-            print("Error! Return code " + str(ret.status_code))
-            flag = False
+            if ret.status_code == 200:
+                print('Cross-campus report succeeded.')
+            else:
+                flag = False
+                print('Cross-campus report failed.')
         return flag
 
     def login(self):
-        retries = Retry(total=5, backoff_factor=0.5, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=3, backoff_factor=0.5, status_forcelist=[500, 502, 503, 504])
         s = requests.Session()
         s.mount("https://", HTTPAdapter(max_retries=retries))
         s.headers[
             "User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
                             "Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.67 "
         url = "https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
-        r = s.get(url, params={"service": CAS_RETURN_URL})
+        r = s.get(url, params={"service": "https://weixine.ustc.edu.cn/2020/caslogin"})
         x = re.search(r"""<input.*?name="CAS_LT".*?>""", r.text).group(0)
         cas_lt = re.search(r'value="(LT-\w*)"', x).group(1)
         cas_captcha_url = "https://passport.ustc.edu.cn/validatecode.jsp?type=login"

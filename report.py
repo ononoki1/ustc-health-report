@@ -99,7 +99,7 @@ class Report(object):
             print("{} - {}".format(start_date, end_date))
             report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
             report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date,
-                           "return_college": ["东校区", "西校区", "南校区", "北校区", "中校区", "高新校区", "先研院", "国金院"]}
+                           "return_college[]": ["东校区", "西校区", "南校区", "北校区", "中校区", "高新校区", "先研院", "国金院"]}
             ret = session.post(url=report_url, data=report_data)
             print(ret.status_code)
         elif ret.status_code == 302:

@@ -52,10 +52,8 @@ class Report(object):
             data["_token"] = token
         headers = {'authority': 'weixine.ustc.edu.cn', 'origin': 'https://weixine.ustc.edu.cn',
                    'upgrade-insecure-requests': '1', 'content-type': 'application/x-www-form-urlencoded',
-                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                                 'Chrome/80.0.3987.100 Safari/537.36',
-                   'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                             'application/signed-exchange;v=b3;q=0.9',
+                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36',
+                   'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                    'referer': 'https://weixine.ustc.edu.cn/2020/home', 'accept-language': 'zh-CN,zh;q=0.9',
                    'Connection': 'close',
                    'cookie': "PHPSESSID=" + cookies.get("PHPSESSID") + ";XSRF-TOKEN=" + cookies.get(
@@ -64,31 +62,19 @@ class Report(object):
         session.post(url, data=data, headers=headers)
         data = session.get("https://weixine.ustc.edu.cn/2020").text
         soup = BeautifulSoup(data, 'html.parser')
-        pattern = re.compile(
-            "202[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
-        token = soup.find(
-            "span", {"style": "position: relative; top: 5px; color: #666;"})
+        pattern = re.compile("202[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
+        token = soup.find("span", {"style": "position: relative; top: 5px; color: #666;"})
         flag = False
         if pattern.search(token.text) is not None:
             date = pattern.search(token.text).group()
-            print("Latest report: " + date)
             date = date + " +0800"
-            report_time = datetime.datetime.strptime(
-                date, "%Y-%m-%d %H:%M:%S %z")
-            print("Report: " + format(report_time))
+            report_time = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S %z")
             time_now = datetime.datetime.now(pytz.timezone('Asia/Shanghai'))
-            print("Now: " + format(time_now))
             delta = time_now - report_time
             delta_negative = report_time - time_now
-            print("Delta: " + str(delta))
-            print("Delta negative: " + str(delta_negative))
             if delta.seconds < 120 or delta_negative.seconds < 120:
                 flag = True
-            if delta.seconds < delta_negative.seconds:
-                print("{} second(s) before.".format(delta.seconds))
-            else:
-                print("{} second(s) before.".format(delta_negative.seconds))
-        if flag is False:
+        if not flag:
             print("Daily report failed.")
         else:
             print("Daily report succeeded.")
@@ -101,7 +87,6 @@ class Report(object):
             token2 = soup.find("input", {"name": "_token"})['value']
             start_date = soup.find("input", {"id": "start_date"})['value']
             end_date = soup.find("input", {"id": "end_date"})['value']
-            print("{} - {}".format(start_date, end_date))
             report_url = "https://weixine.ustc.edu.cn/2020/apply/daliy/post"
             report_data = {'_token': token2, 'start_date': start_date, 'end_date': end_date,
                            "return_college[]": {"东校区", "西校区", "南校区", "北校区", "中校区"}, "t": 3}
@@ -119,8 +104,7 @@ class Report(object):
         s = requests.Session()
         s.mount("https://", HTTPAdapter(max_retries=retries))
         s.headers[
-            "User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
-                            "Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.67 "
+            "User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.67 "
         url = "https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
         r = s.get(
             url, params={"service": "https://weixine.ustc.edu.cn/2020/caslogin"})

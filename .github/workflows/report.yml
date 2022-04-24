@@ -1,32 +1,32 @@
-name: Auto Report
-
-on: 
+name: report
+on:
   schedule:
-    - cron: '10 4,10,16,22 * * *'
-
+    - cron: '23 3,9,15,21 * * *'
+  push:
+    branches: [ master ]
+  workflow_dispatch:
 jobs:
-  build:
-
+  report:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        sudo apt-get install -y tesseract-ocr
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pillow pytesseract requests
-    - name: Run report script
-      env:
-        STUID: ${{ secrets.Stuid }}
-        PASSWORD: ${{ secrets.Password }}
-        EMER_PERSON: ${{ secrets.Emer_person }}
-        EMER_RELA: ${{ secrets.Emer_rela }}
-        EMER_PHONE: ${{ secrets.Emer_phone }}
-      run: |
-        python report.py data_atschool.json "$STUID" "$PASSWORD" "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y tesseract-ocr
+          pip install -r requirements.txt
+      - name: Report
+        env:
+          STUID: ${{ secrets.Stuid }}
+          PASSWORD: ${{ secrets.Password }}
+          EMER_PERSON: ${{ secrets.Emer_person }}
+          EMER_RELA: ${{ secrets.Emer_rela }}
+          EMER_PHONE: ${{ secrets.Emer_phone }}
+          DORM: ${{ secrets.Dorm }}
+          DORM_ROOM: ${{ secrets.Dorm_room }}
+        run: |
+          python report.py data_atschool.json "$STUID" "$PASSWORD" "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM"

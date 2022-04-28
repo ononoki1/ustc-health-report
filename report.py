@@ -46,7 +46,7 @@ class Report(object):
                 else:
                     pix[i, j] = (255, 255, 255)
         lt_code = pytesseract.image_to_string(img).strip()
-        data = {'CAS_LT': cas_lt, 'LT': lt_code, 'button': '', 'model': 'uplogin.jsp', 'password': str(self.password),
+        data = {'CAS_LT': cas_lt, 'LT': lt_code, 'button': '', 'model': 'uplogin.jsp', 'password': self.password,
                 'service': 'https://weixine.ustc.edu.cn/2020/caslogin', 'showCode': '1', 'username': self.student_id,
                 'warn': ''}
         self.session.post(url, data=data)
@@ -58,13 +58,12 @@ class Report(object):
         return False
 
     def daily(self):
-        print('Start daily report.')
         cookies = self.session.cookies
         get_form = self.session.get('https://weixine.ustc.edu.cn/2020')
-        token = BeautifulSoup(get_form.text, 'html.parser').find('input', {'name': '_token'})['value']
+        self.token = BeautifulSoup(get_form.text, 'html.parser').find('input', {'name': '_token'})['value']
         with open(self.data_path, 'r+') as f:
             data = json.loads(f.read())
-            data['_token'] = token
+            data['_token'] = self.token
             data['dorm'] = self.dorm_room
             data['dorm_building'] = self.dorm
             data['jinji_guanxi'] = self.relation
@@ -92,8 +91,8 @@ class Report(object):
                 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3').url == 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3':
             print('Health information already uploaded.')
             return True
-        print('Start health information upload.')
         r = self.session.get('https://weixine.ustc.edu.cn/2020/upload/xcm')
+        # wait to see
         if r.text.find("每周可上报时间为周一凌晨0:00至周日中午12:00,其余时间将关闭相关功能。") == -1:
             for idx, description in [(1, 'xc'), (2, 'ak')]:
                 ret = self.session.get(self.pic[idx - 1])
@@ -115,7 +114,6 @@ class Report(object):
         return False
 
     def cross(self):
-        print('Start cross-campus report.')
         soup = BeautifulSoup(self.session.get('https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
         token = soup.find('input', {'name': '_token'})['value']
         start_date = soup.find('input', {'id': 'start_date'})['value']

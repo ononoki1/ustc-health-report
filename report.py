@@ -64,11 +64,11 @@ class Report(object):
         with open(self.data_path, 'r+') as f:
             data = json.loads(f.read())
             data['_token'] = self.token
-            data['dorm'] = self.dorm_room
-            data['dorm_building'] = self.dorm
-            data['jinji_guanxi'] = self.relation
             data['jinji_lxr'] = self.emer_person
+            data['jinji_guanxi'] = self.relation
             data['jiji_mobile'] = self.emer_phone
+            data['dorm_building'] = self.dorm
+            data['dorm'] = self.dorm_room
         header = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                   'accept-language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
                   'authority': 'weixine.ustc.edu.cn', 'origin': 'https://weixine.ustc.edu.cn', 'connection': 'close',
@@ -93,18 +93,18 @@ class Report(object):
             return True
         r = self.session.get('https://weixine.ustc.edu.cn/2020/upload/xcm')
         # wait to see
-        if r.text.find("每周可上报时间为周一凌晨0:00至周日中午12:00,其余时间将关闭相关功能。") == -1:
-            for idx, description in [(1, 'xc'), (2, 'ak')]:
-                ret = self.session.get(self.pic[idx - 1])
+        if r.text.find('关闭相关功能') == -1:
+            for index, name in ((1, 'xc'), (2, 'ak')):
+                ret = self.session.get(self.pic[index - 1])
                 blob = ret.content
-                url = 'https://weixine.ustc.edu.cn/2020/upload/{}/image'.format(idx)
-                payload = {"_token": self.token, "id": f"WU_FILE_{idx}",
-                           "lastModifiedDate": datetime.datetime.now().strftime(
-                               "%a %b %d %Y %H:%M:%S GMT+0800 (China Standard Time)"),
-                           "name": f"{description}.png", "type": "image/png", "size": f"{len(blob)}"}
+                url = 'https://weixine.ustc.edu.cn/2020/upload/{}/image'.format(index)
+                payload = {'_token': self.token, 'id': f'WU_FILE_{index}',
+                           'lastModifiedDate': datetime.datetime.now().strftime(
+                               '%a %b %d %Y %H:%M:%S GMT+0800 (China Standard Time)'),
+                           'name': f'{name}.png', 'size': f'{len(blob)}', 'type': 'image/png'}
                 headers_upload = self.session.headers
                 headers_upload['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
-                self.session.post(url, data=payload, files={"file": (payload["name"], blob)}, headers=headers_upload)
+                self.session.post(url, data=payload, files={'file': (payload['name'], blob)}, headers=headers_upload)
         if self.session.get(
                 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3').url == 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3':
             print('Health information upload succeeded.')
@@ -115,11 +115,11 @@ class Report(object):
 
     def cross(self):
         soup = BeautifulSoup(self.session.get('https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
-        token = soup.find('input', {'name': '_token'})['value']
+        # token = soup.find('input', {'name': '_token'})['value']
         start_date = soup.find('input', {'id': 'start_date'})['value']
         end_date = soup.find('input', {'id': 'end_date'})['value']
         report_url = 'https://weixine.ustc.edu.cn/2020/apply/daliy/post'
-        report_data = {'_token': token, 'end_date': end_date, 'reason': '取快递',
+        report_data = {'_token': self.token, 'end_date': end_date, 'reason': '取快递',
                        'return_college[]': {'东校区', '西校区', '南校区', '北校区', '中校区'}, 'start_date': start_date, 't': 3}
         if self.session.post(url=report_url, data=report_data).status_code == 200:
             print('Cross-campus report succeeded.')
@@ -136,16 +136,16 @@ class Report(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('student_id', type=str)
-    parser.add_argument('password', type=str)
-    parser.add_argument('data_path', type=str)
-    parser.add_argument('emer_person', type=str)
-    parser.add_argument('relation', type=str)
-    parser.add_argument('emer_phone', type=str)
-    parser.add_argument('dorm', type=str)
-    parser.add_argument('dorm_room', type=str)
-    parser.add_argument('xc', type=str)
-    parser.add_argument('ak', type=str)
+    parser.add_argument('student_id')
+    parser.add_argument('password')
+    parser.add_argument('data_path')
+    parser.add_argument('emer_person')
+    parser.add_argument('relation')
+    parser.add_argument('emer_phone')
+    parser.add_argument('dorm')
+    parser.add_argument('dorm_room')
+    parser.add_argument('xc')
+    parser.add_argument('ak')
     args = parser.parse_args()
     if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
                   emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,

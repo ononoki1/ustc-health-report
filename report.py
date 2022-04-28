@@ -150,7 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('xc', type=str)
     parser.add_argument('ak', type=str)
     args = parser.parse_args()
-    if not Report(student_id=args.stuid, password=args.password, data_path=args.data_path, emer_person=args.emer_person,
-                  relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm, dorm_room=args.dorm_room,
-                  xc=args.xc, ak=args.ak).report():
+    if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
+                  emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,
+                  dorm_room=args.dorm_room, xc=args.xc, ak=args.ak).report():
         exit(1)

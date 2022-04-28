@@ -50,8 +50,7 @@ class Report(object):
                 'service': 'https://weixine.ustc.edu.cn/2020/caslogin', 'showCode': '1', 'username': self.student_id,
                 'warn': ''}
         self.session.post(url, data=data)
-        get_form = self.session.get('https://weixine.ustc.edu.cn/2020')
-        if get_form.url == 'https://weixine.ustc.edu.cn/2020/home':
+        if self.session.get('https://weixine.ustc.edu.cn/2020').url == 'https://weixine.ustc.edu.cn/2020/home':
             print('Login succeeded.')
             return True
         else:

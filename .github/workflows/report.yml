@@ -22,13 +22,13 @@ jobs:
           pip install -r requirements.txt
       - name: Report
         env:
-          STUID: ${{ secrets.Stuid }}
-          PASSWORD: ${{ secrets.Password }}
-          EMER_PERSON: ${{ secrets.Emer_person }}
-          EMER_RELA: ${{ secrets.Emer_rela }}
-          EMER_PHONE: ${{ secrets.Emer_phone }}
-          DORM: ${{ secrets.Dorm }}
-          DORM_ROOM: ${{ secrets.Dorm_room }}
+          STUID: ${{ secrets.STUID }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMER_PERSON: ${{ secrets.EMER_PERSON }}
+          EMER_RELA: ${{ secrets.EMER_RELA }}
+          EMER_PHONE: ${{ secrets.EMER_PHONE }}
+          DORM: ${{ secrets.DORM }}
+          DORM_ROOM: ${{ secrets.DORM_ROOM }}
           BIGDATA_URL : ${{ secrets.BIGDATA_URL }}
           ANKANG_URL : ${{ secrets.ANKANG_URL }}
         run: python report.py data_atschool.json "$STUID" "$PASSWORD" "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" "$ANKANG_URL"

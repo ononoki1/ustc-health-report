@@ -13,7 +13,7 @@ from urllib3.util.retry import Retry
 
 
 class Report(object):
-    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc, ak):
+    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc, ak, force):
         self.student_id = student_id
         self.password = password
         self.data_path = data_path
@@ -23,6 +23,7 @@ class Report(object):
         self.dorm = dorm
         self.dorm_room = dorm_room
         self.pic = [xc, ak]
+        self.force = force
         self.session = None
         self.token = None
 
@@ -90,7 +91,8 @@ class Report(object):
         if self.session.get(
                 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3').url == 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3':
             print('Health information already uploaded.')
-            return True
+            if self.force != 'force':
+                return True
         r = self.session.get('https://weixine.ustc.edu.cn/2020/upload/xcm')
         # wait to see
         if r.text.find('关闭相关功能') == -1:
@@ -146,8 +148,9 @@ if __name__ == '__main__':
     parser.add_argument('dorm_room')
     parser.add_argument('xc')
     parser.add_argument('ak')
+    parser.add_argument('force', default='')
     args = parser.parse_args()
     if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
                   emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,
-                  dorm_room=args.dorm_room, xc=args.xc, ak=args.ak).report():
+                  dorm_room=args.dorm_room, xc=args.xc, ak=args.ak, force=args.force).report():
         exit(1)

@@ -148,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument('dorm_room')
     parser.add_argument('xc')
     parser.add_argument('ak')
-    parser.add_argument('force', default='')
+    parser.add_argument('force')
     args = parser.parse_args()
     if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
                   emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,

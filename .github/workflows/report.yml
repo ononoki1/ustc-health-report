@@ -21,6 +21,7 @@ jobs:
           sudo apt-get install -y tesseract-ocr
           pip install -r requirements.txt
       - name: Report
+        if: ${{ env.GITHUB_EVENT_NAME }} == schedule
         env:
           STUID: ${{ secrets.STUID }}
           PASSWORD: ${{ secrets.PASSWORD }}
@@ -32,3 +33,16 @@ jobs:
           BIGDATA_URL : ${{ secrets.BIGDATA_URL }}
           ANKANG_URL : ${{ secrets.ANKANG_URL }}
         run: python report.py "$STUID" "$PASSWORD" data_atschool.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" "$ANKANG_URL"
+      - name: Force report
+        if: ${{ env.GITHUB_EVENT_NAME }} != schedule
+        env:
+          STUID: ${{ secrets.STUID }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMER_PERSON: ${{ secrets.EMER_PERSON }}
+          EMER_RELA: ${{ secrets.EMER_RELA }}
+          EMER_PHONE: ${{ secrets.EMER_PHONE }}
+          DORM: ${{ secrets.DORM }}
+          DORM_ROOM: ${{ secrets.DORM_ROOM }}
+          BIGDATA_URL : ${{ secrets.BIGDATA_URL }}
+          ANKANG_URL : ${{ secrets.ANKANG_URL }}
+        run: python report.py "$STUID" "$PASSWORD" data_atschool.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" "$ANKANG_URL" force

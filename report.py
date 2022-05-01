@@ -88,13 +88,18 @@ class Report(object):
         return False
 
     def upload(self):
+        already_upload = False
         if self.session.get(
                 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3').url == 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3':
             print('Health information already uploaded.')
+            already_upload = True
             if self.force != 'force':
                 return True
         r = self.session.get('https://weixine.ustc.edu.cn/2020/upload/xcm')
-        if r.text.find('关闭相关功能') == -1:
+        if r.text.find('关闭相关功能') != -1:
+            print('Health information upload is unavailable.')
+            return already_upload
+        else:
             for index, name in ((1, 'xc'), (2, 'ak')):
                 ret = self.session.get(self.pic[index - 1])
                 blob = ret.content

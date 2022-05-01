@@ -94,7 +94,6 @@ class Report(object):
             if self.force != 'force':
                 return True
         r = self.session.get('https://weixine.ustc.edu.cn/2020/upload/xcm')
-        # wait to see
         if r.text.find('关闭相关功能') == -1:
             for index, name in ((1, 'xc'), (2, 'ak')):
                 ret = self.session.get(self.pic[index - 1])

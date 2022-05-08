@@ -121,13 +121,12 @@ class Report(object):
 
     def cross(self):
         soup = BeautifulSoup(self.session.get('https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
-        # token = soup.find('input', {'name': '_token'})['value']
         start_date = soup.find('input', {'id': 'start_date'})['value']
         end_date = soup.find('input', {'id': 'end_date'})['value']
-        report_url = 'https://weixine.ustc.edu.cn/2020/apply/daliy/post'
+        report_url = 'https://weixine.ustc.edu.cn/2020/apply/daliy/ipost'
         report_data = {'_token': self.token, 'end_date': end_date, 'reason': '取快递',
                        'return_college[]': {'东校区', '西校区', '南校区', '北校区', '中校区'}, 'start_date': start_date, 't': 3}
-        if self.session.post(url=report_url, data=report_data).status_code == 200:
+        if self.session.post(url=report_url, data=report_data).status_code == 302:
             print('Cross-campus report succeeded.')
             return True
         else:

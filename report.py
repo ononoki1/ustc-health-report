@@ -126,7 +126,7 @@ class Report(object):
         report_url = 'https://weixine.ustc.edu.cn/2020/apply/daliy/ipost'
         report_data = {'_token': self.token, 'end_date': end_date, 'reason': '取快递',
                        'return_college[]': {'东校区', '西校区', '南校区', '北校区', '中校区'}, 'start_date': start_date, 't': 3}
-        if self.session.post(url=report_url, data=report_data).status_code == 302:
+        if self.session.post(url=report_url, data=report_data, allow_redirects=False).status_code == 302:
             print('Cross-campus report succeeded.')
             return True
         else:

@@ -103,7 +103,7 @@ class Report(object):
             for index, name in ((1, 'xc'), (2, 'ak')):
                 ret = self.session.get(self.pic[index - 1])
                 blob = ret.content
-                url = 'https://weixine.ustc.edu.cn/2020/upload/{}/image'.format(index)
+                url = 'https://weixine.ustc.edu.cn/2020/upload/{}/healthimg'.format(index)
                 payload = {'_token': self.token, 'id': f'WU_FILE_{index}',
                            'lastModifiedDate': datetime.datetime.now().strftime(
                                '%a %b %d %Y %H:%M:%S GMT+0800 (China Standard Time)'),

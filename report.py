@@ -103,11 +103,19 @@ class Report(object):
             for index, name in ((1, 'xc'), (2, 'ak')):
                 ret = self.session.get(self.pic[index - 1])
                 blob = ret.content
-                url = 'https://weixine.ustc.edu.cn/2020/upload/{}/healthimg'.format(index)
-                payload = {'_token': self.token, 'id': f'WU_FILE_{index}',
+                url = 'https://weixine.ustc.edu.cn/2020img/api/upload_for_student'
+                search_payload = r'''formData:{
+                    _token:  '(\w{40})',
+                    'gid': '(\d{10})',
+                    'sign': '(\S{36})',
+                    't' : 1
+                }'''
+                gid = re.search(search_payload, r.text).group(1);
+                sign = re.search(search_payload, r.text).group(2);
+                payload = {'_token': self.token, 'gid': gid, 'id': f'WU_FILE_{index}',
                            'lastModifiedDate': datetime.datetime.now().strftime(
                                '%a %b %d %Y %H:%M:%S GMT+0800 (China Standard Time)'),
-                           'name': f'{name}.png', 'size': f'{len(blob)}', 'type': 'image/png'}
+                           'name': f'{name}.png', 'sign': sign, 'size': f'{len(blob)}', 't': index, 'type': 'image/png'}
                 headers_upload = self.session.headers
                 headers_upload['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
                 self.session.post(url, data=payload, files={'file': (payload['name'], blob)}, headers=headers_upload)

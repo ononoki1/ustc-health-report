@@ -13,7 +13,8 @@ from urllib3.util.retry import Retry
 
 
 class Report(object):
-    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc, ak, force):
+    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc, ak,
+                 force):
         self.student_id = student_id
         self.password = password
         self.data_path = data_path
@@ -110,8 +111,8 @@ class Report(object):
                     'sign': '(\S{36})',
                     't' : 1
                 }'''
-                gid = re.search(search_payload, r.text).group(1);
-                sign = re.search(search_payload, r.text).group(2);
+                gid = re.search(search_payload, r.text).group(2)
+                sign = re.search(search_payload, r.text).group(3)
                 payload = {'_token': self.token, 'gid': gid, 'id': f'WU_FILE_{index}',
                            'lastModifiedDate': datetime.datetime.now().strftime(
                                '%a %b %d %Y %H:%M:%S GMT+0800 (China Standard Time)'),

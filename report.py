@@ -13,7 +13,7 @@ from urllib3.util.retry import Retry
 
 
 class Report(object):
-    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc, ak,
+    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc,
                  force):
         self.student_id = student_id
         self.password = password
@@ -23,7 +23,7 @@ class Report(object):
         self.emer_phone = emer_phone
         self.dorm = dorm
         self.dorm_room = dorm_room
-        self.pic = [xc, ak]
+        self.pic = [xc]
         self.force = force
         self.session = None
         self.token = None
@@ -101,7 +101,7 @@ class Report(object):
             print('Health information upload is unavailable.')
             return already_upload
         else:
-            for index, name in ((1, 'xc'), (2, 'ak')):
+            for index, name in ((1, 'xc')):
                 ret = self.session.get(self.pic[index - 1])
                 blob = ret.content
                 url = 'https://weixine.ustc.edu.cn/2020img/api/upload_for_student'
@@ -159,10 +159,9 @@ if __name__ == '__main__':
     parser.add_argument('dorm')
     parser.add_argument('dorm_room')
     parser.add_argument('xc')
-    parser.add_argument('ak')
     parser.add_argument('force')
     args = parser.parse_args()
     if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
                   emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,
-                  dorm_room=args.dorm_room, xc=args.xc, ak=args.ak, force=args.force).report():
+                  dorm_room=args.dorm_room, xc=args.xc, force=args.force).report():
         exit(1)

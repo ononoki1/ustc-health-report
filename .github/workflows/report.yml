@@ -1,10 +1,10 @@
 name: report
 on:
   schedule:
-    - cron: '23 3,9,15,21 * * *'
+    - cron: "23 3,9,15,21 * * *"
   push:
-    branches: [ master ]
-    paths: [ '**.py' ]
+    branches: [master]
+    paths: ["**.py"]
   workflow_dispatch:
 jobs:
   report:
@@ -30,8 +30,8 @@ jobs:
           EMER_PHONE: ${{ secrets.EMER_PHONE }}
           DORM: ${{ secrets.DORM }}
           DORM_ROOM: ${{ secrets.DORM_ROOM }}
-          BIGDATA_URL : ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" data_atschool.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" no
+          BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
+        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" no
       - name: Force report
         if: github.event_name != 'schedule'
         env:
@@ -42,5 +42,5 @@ jobs:
           EMER_PHONE: ${{ secrets.EMER_PHONE }}
           DORM: ${{ secrets.DORM }}
           DORM_ROOM: ${{ secrets.DORM_ROOM }}
-          BIGDATA_URL : ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" data_atschool.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" force
+          BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
+        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" force

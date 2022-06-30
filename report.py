@@ -86,12 +86,13 @@ class Report(object):
                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'}
         url = 'https://weixine.ustc.edu.cn/2020/daliy_report'
         self.session.post(url, data=data, headers=header)
-        if self.session.get('https://weixine.ustc.edu.cn/2020/home').text.find('text-success') != -1:
-            print('Daily report succeeded.')
-            return True
-        else:
-            print('Daily report failed.')
-        return False
+#         if self.session.get('https://weixine.ustc.edu.cn/2020/home').text.find('text-success') != -1:
+#             print('Daily report succeeded.')
+#             return True
+#         else:
+#             print('Daily report failed.')
+#         return False
+        return True
 
     def upload(self):
         already_upload = False

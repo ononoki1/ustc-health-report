@@ -27,6 +27,10 @@ class Report(object):
         self.force = force
         self.session = None
         self.token = None
+        if 'home' in self.data_path:
+            self.home = True
+        else:
+            self.home = False
 
     def login(self):
         retries = Retry(total=3, backoff_factor=0.5, status_forcelist=[500, 502, 503, 504])
@@ -69,8 +73,9 @@ class Report(object):
             data['jinji_lxr'] = self.emer_person
             data['jinji_guanxi'] = self.relation
             data['jiji_mobile'] = self.emer_phone
-            data['dorm_building'] = self.dorm
-            data['dorm'] = self.dorm_room
+            if not self.home:
+                data['dorm_building'] = self.dorm
+                data['dorm'] = self.dorm_room
         header = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                   'accept-language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
                   'authority': 'weixine.ustc.edu.cn', 'origin': 'https://weixine.ustc.edu.cn', 'connection': 'close',
@@ -130,6 +135,9 @@ class Report(object):
         return False
 
     def cross(self):
+        if self.home:
+            print('Skip cross-campus report since you are at home.')
+            return True
         soup = BeautifulSoup(self.session.get('https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
         start_date = soup.find('input', {'id': 'start_date'})['value']
         end_date = soup.find('input', {'id': 'end_date'})['value']

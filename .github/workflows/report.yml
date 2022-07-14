@@ -31,7 +31,7 @@ jobs:
           DORM: ${{ secrets.DORM }}
           DORM_ROOM: ${{ secrets.DORM_ROOM }}
           BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" no
+        run: python report.py "$STUID" "$PASSWORD" school.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" no
       - name: Force report
         if: github.event_name != 'schedule'
         env:
@@ -43,4 +43,4 @@ jobs:
           DORM: ${{ secrets.DORM }}
           DORM_ROOM: ${{ secrets.DORM_ROOM }}
           BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" force
+        run: python report.py "$STUID" "$PASSWORD" school.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" force

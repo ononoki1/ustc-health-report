@@ -13,35 +13,30 @@ from urllib3.util.retry import Retry
 
 
 class Report(object):
-    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, dorm, dorm_room, xc,
-                 force):
+    def __init__(self, student_id, password, data_path, emer_person, relation, emer_phone, force):
         self.student_id = student_id
         self.password = password
         self.data_path = data_path
         self.emer_person = emer_person
         self.relation = relation
         self.emer_phone = emer_phone
-        self.dorm = dorm
-        self.dorm_room = dorm_room
-        self.pic = [xc]
         self.force = force
         self.session = None
         self.token = None
-        if 'home' in self.data_path:
-            self.home = True
-        else:
-            self.home = False
 
     def login(self):
-        retries = Retry(total=3, backoff_factor=0.5, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=3, backoff_factor=0.5,
+                        status_forcelist=[500, 502, 503, 504])
         self.session = requests.Session()
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
         self.session.headers['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
         url = 'https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin'
-        r = self.session.get(url, params={'service': 'https://weixine.ustc.edu.cn/2020/caslogin'})
+        r = self.session.get(
+            url, params={'service': 'https://weixine.ustc.edu.cn/2020/caslogin'})
         x = re.search(r'<input.*?name="CAS_LT".*?>', r.text).group(0)
         cas_lt = re.search(r'value="(LT-\w*)"', x).group(1)
-        r = self.session.get('https://passport.ustc.edu.cn/validatecode.jsp?type=login')
+        r = self.session.get(
+            'https://passport.ustc.edu.cn/validatecode.jsp?type=login')
         img = PIL.Image.open(io.BytesIO(r.content))
         pix = img.load()
         for i in range(img.size[0]):
@@ -66,16 +61,14 @@ class Report(object):
     def daily(self):
         cookies = self.session.cookies
         get_form = self.session.get('https://weixine.ustc.edu.cn/2020')
-        self.token = BeautifulSoup(get_form.text, 'html.parser').find('input', {'name': '_token'})['value']
+        self.token = BeautifulSoup(get_form.text, 'html.parser').find(
+            'input', {'name': '_token'})['value']
         with open(self.data_path, 'r+') as f:
             data = json.loads(f.read())
             data['_token'] = self.token
             data['jinji_lxr'] = self.emer_person
             data['jinji_guanxi'] = self.relation
             data['jiji_mobile'] = self.emer_phone
-            if not self.home:
-                data['dorm_building'] = self.dorm
-                data['dorm'] = self.dorm_room
         header = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                   'accept-language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
                   'authority': 'weixine.ustc.edu.cn', 'origin': 'https://weixine.ustc.edu.cn', 'connection': 'close',
@@ -86,13 +79,12 @@ class Report(object):
                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'}
         url = 'https://weixine.ustc.edu.cn/2020/daliy_report'
         self.session.post(url, data=data, headers=header)
-#         if self.session.get('https://weixine.ustc.edu.cn/2020/home').text.find('text-success') != -1:
-#             print('Daily report succeeded.')
-#             return True
-#         else:
-#             print('Daily report failed.')
-#         return False
-        return True
+        if self.session.get('https://weixine.ustc.edu.cn/2020/home').text.find('text-success') != -1:
+            print('Daily report succeeded.')
+            return True
+        else:
+            print('Daily report failed.')
+        return False
 
     def upload(self):
         already_upload = False
@@ -126,7 +118,8 @@ class Report(object):
                        'name': f'{name}.png', 'sign': sign, 'size': f'{len(blob)}', 't': index, 'type': 'image/png'}
             headers_upload = self.session.headers
             headers_upload['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
-            self.session.post(url, data=payload, files={'file': (payload['name'], blob)}, headers=headers_upload)
+            self.session.post(url, data=payload, files={'file': (
+                payload['name'], blob)}, headers=headers_upload)
         if self.session.get(
                 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3').url == 'https://weixine.ustc.edu.cn/2020/apply/daliy/i?t=3':
             print('Health information upload succeeded.')
@@ -136,10 +129,8 @@ class Report(object):
         return False
 
     def cross(self):
-        if self.home:
-            print('Skip cross-campus report since you are at home.')
-            return True
-        soup = BeautifulSoup(self.session.get('https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
+        soup = BeautifulSoup(self.session.get(
+            'https://weixine.ustc.edu.cn/2020/apply/daliy/i').text, 'html.parser')
         start_date = soup.find('input', {'id': 'start_date'})['value']
         end_date = soup.find('input', {'id': 'end_date'})['value']
         report_url = 'https://weixine.ustc.edu.cn/2020/apply/daliy/ipost'
@@ -153,7 +144,7 @@ class Report(object):
         return False
 
     def report(self):
-        if self.login() and self.daily() and self.upload() and self.cross():
+        if self.login() and self.daily() and self.cross():
             return True
         return False
 
@@ -166,12 +157,7 @@ if __name__ == '__main__':
     parser.add_argument('emer_person')
     parser.add_argument('relation')
     parser.add_argument('emer_phone')
-    parser.add_argument('dorm')
-    parser.add_argument('dorm_room')
-    parser.add_argument('xc')
     parser.add_argument('force')
     args = parser.parse_args()
-    if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path,
-                  emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, dorm=args.dorm,
-                  dorm_room=args.dorm_room, xc=args.xc, force=args.force).report():
+    if not Report(student_id=args.student_id, password=args.password, data_path=args.data_path, emer_person=args.emer_person, relation=args.relation, emer_phone=args.emer_phone, force=args.force).report():
         exit(1)

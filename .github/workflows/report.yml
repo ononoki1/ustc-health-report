@@ -28,10 +28,7 @@ jobs:
           EMER_PERSON: ${{ secrets.EMER_PERSON }}
           EMER_RELA: ${{ secrets.EMER_RELA }}
           EMER_PHONE: ${{ secrets.EMER_PHONE }}
-          DORM: ${{ secrets.DORM }}
-          DORM_ROOM: ${{ secrets.DORM_ROOM }}
-          BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" no
+        run: python report.py "$STUID" "$PASSWORD" data.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" no
       - name: Force report
         if: github.event_name != 'schedule'
         env:
@@ -40,7 +37,4 @@ jobs:
           EMER_PERSON: ${{ secrets.EMER_PERSON }}
           EMER_RELA: ${{ secrets.EMER_RELA }}
           EMER_PHONE: ${{ secrets.EMER_PHONE }}
-          DORM: ${{ secrets.DORM }}
-          DORM_ROOM: ${{ secrets.DORM_ROOM }}
-          BIGDATA_URL: ${{ secrets.BIGDATA_URL }}
-        run: python report.py "$STUID" "$PASSWORD" home.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" "$DORM" "$DORM_ROOM" "$BIGDATA_URL" force
+        run: python report.py "$STUID" "$PASSWORD" data.json "$EMER_PERSON" "$EMER_RELA" "$EMER_PHONE" force
